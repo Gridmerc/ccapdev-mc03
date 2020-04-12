@@ -13,8 +13,23 @@ const controller = {
             current stored in the database.
     */
     getIndex: function(req, res) {
-        // your code here
-        res.render('home'); // This is to load the page initially
+        var name = req.params.name;
+        var number = req.params.number;
+
+        var query = {
+            name: name,
+            number: number
+        };
+        var projection = {};
+        var mySort = {};
+
+        db.findMany(User, query, projection, function(result) {
+            if(result != null) {
+                res.render('home', {userContact: result});
+            }
+            else
+                res.render('home');
+        }, mySort);
     },
 
     /*
@@ -25,7 +40,10 @@ const controller = {
             number, otherwise, it returns an empty string.
     */
     getCheckNumber: function(req, res) {
-        // your code here
+        var uNumber = req.query.uNumber;
+        db.findOne(User, {uNumber: uNumber}, 'uNumber', function(result) {
+            res.send(result);
+        });
     },
 
     /*
@@ -35,7 +53,18 @@ const controller = {
             list of contacts in `home.hbs`.
     */
     getAdd: function(req, res) {
-        // your code here
+        var uName = req.query.uName;
+        var uNumber = req.query.uNumber;
+        //var details = {name: uName, number: uNumber};
+
+        db.insertOne(User, {
+            uName: uName,
+            uNumber: uNumber
+        }, function(result) {
+            res.send(result);
+        });
+
+        //res.render('home', {userContact: {name: uName, number: uNumber}});
     },
 
     /*
@@ -45,7 +74,15 @@ const controller = {
             contacts in `home.hbs`.
     */
     getDelete: function (req, res) {
-        // your code here
+        var uName = req.query.uName;
+        var uNumber = req.query.uNumber;
+
+        db.deleteOne(User, {
+            uName: uName,
+            uNumber: uNumber
+        }, function(result) {
+            res.send(result);
+        });
     }
 
 }
